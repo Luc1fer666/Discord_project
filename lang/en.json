@@ -53,16 +53,16 @@
 	        "Lông sói gây cho 1 người dị ứng."
 	],
 	"lynched": [
-		"làng quyết định treo **{lynched_name}**.",
-		"Làng phẫu thuật lấy não của **{lynched_name}**. Họ bỏ não cho chó gặm.",
-		"Làng quyết định hiếp râm tập thể **{lynched_name}** đến chết. Họ chôn xác ở dưới sông.",
-		"**{lynched_name}** tự nhảy vào giếng.",
-		"Làng hiến tế **{lynched_name}** cho Lucifer, Lucifer đang thỏa mãn vì vừa được cúng.",
-		"VÌ KHOA HỌC, Làng ném **{lynched_name}** vào núi lửa :).Họ phát hiện rằng nhiệt độ nóng chảy của nó là thấp hơn của dung nham.",
-		"Làng ép **{lynched_name}** chơi Russian Roulette. Không may thay, máu bắn tung tóe khắp nơi.",
-		"Làng ép **{lynched_name}** tự tử.",
-		"Sau khi chống cự vô ích, **{lynched_name}** bị giết.",
-		"Quyết định treo **{lynched_name}**; nhưng nó tự vấp té và chết."
+		"làng quyết định treo **{0}**.",
+		"Làng phẫu thuật lấy não của **{0}**. Họ bỏ não cho chó gặm.",
+		"Làng quyết định hiếp râm tập thể **{0}** đến chết. Họ chôn xác ở dưới sông.",
+		"**{0}** tự nhảy vào giếng.",
+		"Làng hiến tế **{0}** cho Lucifer, Lucifer đang thỏa mãn vì vừa được cúng.",
+		"VÌ KHOA HỌC, Làng ném **{0}** vào núi lửa :).Họ phát hiện rằng nhiệt độ nóng chảy của nó là thấp hơn của dung nham.",
+		"Làng ép **{0}** chơi Russian Roulette. Không may thay, máu bắn tung tóe khắp nơi.",
+		"Làng ép **{0}** tự tử.",
+		"Sau khi chống cự vô ích, **{0}** bị giết.",
+		"Quyết định treo **{0}**; nhưng nó tự vấp té và chết."
 	],
 	"hastotem": [
 		"**{t}** đang sở hữu một bùa chú bí ẩn..."
