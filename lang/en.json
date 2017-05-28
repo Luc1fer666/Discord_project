@@ -14,79 +14,79 @@
 		"{bot_nick}.exe has stopped responding. Windows is checking for a solution to the problem..."
 	],
 	"maxplayers": [
-		"The maximum number of players ({0}) have already joined the game.",
-		"There's no room left for you to join this game. There are already {0} players in this lobby."
+		"Đã có số lượng người chơi tối đa ({m}) tham gia trò chơi.",
+		"Không còn chỗ cho bạn chơi đâu. Đã có {m} người chơi ở sảnh rồi."
 	],
 	"minplayers": [
-		"Please wait until there are at least {0} players.",
-		"You cannot start the game until there are at least {0} players."
+		"Hãy chờ đợi cho đến khi có ít nhất {m} người chơi.",
+		"Không thể bắt đầu trò chơi nếu chỉ có {m} người chơi."
 	],
 	"notplayingstart": [
-		"You are not playing, so you cannot start the game! Type `!join` to join the game."
+		"Bạn không có đang tham gia nên không thể bắt đầu trò chơi! Gõ `!join` để nhập cuộc."
 	],
 	"notplayingleave": [
-		"You cannot leave a game you are not playing!"
+		"Không chơi thì làm éo gì rời!"
 	],
 	"alreadyin": [
-		"You are already playing!",
-		"You are already in!"
+		"Bạn đang chơi rồi!",
+		"Bạn đang nhây trong đây rồi!"
 	],
 	"leavelobby": [
-		"**{0}** left the game. There are now **{1}** players in the lobby.",
-		"**{0}** walked out of the lobby. There are now **{1}** players in the lobby.",
-		"**{0}** was shot twice by a hunter, once in the head and once in the heart. Remaining players: **{1}**",
-		"**{0}** poked a bear in the eye with a stick and has paid the price. Remaining players: **{1}**",
-		"**{0}** was hit by a humongous yellow bullet from a giant yellow tank. The **{1}** remaining players cower in fear."
+		"**{c}** rời trò chơi. Bây giờ còn **{0}** người chơi trong sảnh.",
+		"**{c}** đi ra khỏi sảnh. Còn **{0}** người chơi",
+		"**{0}** bị chim ị vào đầu đến chết, người chơi còn lại: **{1}**",
+		"**{0}** thủ dâm quá độ nên chết. Người chơi còn lại: **{1}**",
+		"**{0}** té giếng chết. **{1}** người còn lại té ra cười."
 	],
 	"gamestart": [
-		"**{0}** has started a game of Werewolf. Type `{p}join` to join. Type `{p}start` to start the game.",
-		"**{0}** has started a game of Werewolf. Type `{p}start` to start the game. Type `{p}join` to join."
+		"**{0}** đang muốn mở game ma sói. Gõ `{p}join` để chơi. Gõ `{p}start` để bắt đầu game.",
+		"**{0}** muốn chơi game ma sói. Gõ `{p}start` để bắt đầu game. Gõ `{p}join` để nhập cuộc."
 	],
 	"nokills": [
-		"The villagers discover the dead body of a beloved pet penguin, but lucklily no one was harmed.",
-		"The villagers discover the dead body of a beloved pet dog, but lucklily no one was harmed.",
-		"The villagers discover the dead body of a beloved pet cat, but lucklily no one was harmed.",
-		"Paw prints and tufts of fur are found circling the village, but everyone seems unharmed.",
-		"Some house doors have been opened.",
-	        "A scent much like that of a wolf permeates the air.",
-	        "Half-buried wolf droppings are found.",
-	        "Traces of wolf fur are found."
+		"Làng phát hiện có bao cao su vương vãi, ngoài ra thì không có gì bất thường.",
+		"Dân làng phát hiện thú cưng mèo yêu quý đã bị giết nhưng ngoài ra ko ai bị thương.",
+		"Làng phát hiện nước tràn bờ đê, ngoài ra ko có gì xảy ra.",
+		"Vết chân sói ở khắp nơi nhưng không ai bị thương.",
+		"Một vài cánh cửa bị mở",
+	        "Mùi mồ hôi sói nồng nặc không khí",
+	        "Phân của sói chôn chưa xong được tìm thấy.",
+	        "Lông sói gây cho 1 người dị ứng."
 	],
 	"lynched": [
-		"The villagers have agreed to lynch **{0}**, a **{1}**.",
-		"The villagers perform surgery to obtain the heart of **{0}**, now known to be a **{1}**. They put it in a plastic cup.",
-		"The villagers perform surgery to obtain the brains of **{0}**, now known to be a **{1}**. They seal it in a glass jar.",
-		"Reluctantly, the villagers lead **{0}** to the gallows, who is later found to be a **{1}**.",
-		"The villagers sacrifice **{0}** to the belunga god, who is satisfied with the **{1}** for now.",
-		"For SCIENCE, the villagers throw **{0}** into a volcano. They discover that the melting point of a **{1}** is less than that of lava.",
-		"The villagers force **{0}** to play Russian Roulette. The town square is stained with the remains of the **{1}**.",
-		"The villagers, after much debate, finally decide on lynching **{0}**, who turned out to be... a **{1}**.",
-		"After a prolonged struggle, **{0}** is forced to the gallows, and is discovered after death to be a **{1}**.",
-		"The villagers choose to hang **{0}**; however, the rope stretches and breaks, and the ensuing fall kills the **{1}**."
+		"làng quyết định treo **{lynched_name}**, là **{lynched_role}**.",
+		"Làng phẫu thuật lấy não của **{lynched_name}**. Họ bỏ não cho chó gặm.",
+		"Làng quyết định hiếp râm tập thể **{lynched_name}** đến chết. Họ chôn xác ở dưới sông.",
+		"**{lynched_name}** tự nhảy vào giếng.",
+		"Làng hiến tế **{lynched_name}** cho Lucifer, Lucifer đang thỏa mãn vì vừa được cúng.",
+		"VÌ KHOA HỌC, Làng ném **{lynched_name}** vào núi lửa :).Họ phát hiện rằng nhiệt độ nóng chảy của nó là thấp hơn của dung nham.",
+		"Làng ép **{lynched_name}** chơi Russian Roulette. Không may thay, máu bắn tung tóe khắp nơi.",
+		"Làng ép **{lynched_name}** tự tử.",
+		"Sau khi chống cự vô ích, **{lynched_name}** bị giết.",
+		"Quyết định treo **{lynched_name}**; nhưng nó tự vấp té và chết."
 	],
 	"hastotem": [
-		"**{0}** is in possession of a mysterious totem..."
+		"**{t}** đang sở hữu một bùa chú bí ẩn..."
 	],
 	"hastotem2": [
-		"**{0}** and **{1}** are in possession of a mysterious totem..."
+		"**{t}** được đặt tay lên 1 bùa chú huyền ảo..."
 	],
 	"hastotems": [
-		"**{0}**, and **{1}** are in possession of a mysterious totem..."
+		"**{0}**, và **{1}** đang giữ những bùa chú huyền bí..."
 	],
 	"leavedeath": [
-		"**{0}** spontaneously combusted. The air smells of freshly burnt **{1}**.",
-		"While wearing a red triangular hat, **{0}**, a **{1}**, was shot dead by a hunter.",
-		"While wearing a yellow square hat, **{0}**, a **{1}**, was rammed by a tank.",
-		"While wearing a blue pentagonal hat, **{0}**, a **{1}**, was destroyed by a giant cannonball.",
-		"While wearing an oversized blue pentagonal hat, **{0}**, a **{1}**, was annihilated by a humongous mortar shell.",
-		"After jumping into a tank, **{0}** drowned. The fish consumed the dead **{1}**'s body.",
-		"**{0}** mysteriously disappeared in the woods. Nobody knows where the **{1}** went.",
-		"Standing under a tree, **{0}**, a **{1}**, is killed by a falling branch.",
-		"**{0}**, a **{1}**, is killed by lightning before the villagers' eyes. The air smells of burnt flesh.",
-        	"Rampaging through the village, a bull gores **{0}**, a **{1}**.",
-	        "**{0}**, a **{1}**, falls into a vat of molasses and drowns."
+		"**{0}** tự nhiên bùng cháy. Không khí thơm mùi mỡ nướng của **{1}**.",
+		"Khi đang thẩm du, **{0}**,là **{1}**, bị sụp mái nhà chết.",
+		"Lúc đang tắm sông, **{0}**, là **{1}**, bị thủy vương bắt về làm vợ.",
+		"Tự dưng đột quỵ, **{0}**, là **{1}**, lăn đùng ra chết.",
+		"Trong lúc đi ngủ, **{0}**, là **{1}**, ngủ say quá nên chết luôn.",
+		"Bị đau đầu nên tự đi đập đầu, **{0}**, là **{1}** chết nát sọ.",
+		"**{0}** vào rừng xà nude xong không quay trở lại, chả ai biết người **{1}** đã đi đâu.",
+		"Bị táo rụng trúng đầu, **{0}**, là **{1}**, phát minh ra môn vật lí nên bị dân ghét đập chết.",
+		"**{0}**, là **{1}**, Bị trời đụ nên chết.",
+        	"Một con gà bị H5N1 lây cúm cho **{0}**, là **{1}**, nó chết.",
+	        "**{0}**, là **{1}**, bị ghét nên tự tử."
 	],
 	"firstjoin": [
-		"**{0}** has started a game of Werewolf. Type `{p}join` to join. Type `{p}start` to start the game."
+		"**{0}** đã bắt đầu 1 trò chơi ma sói. Gõ `{p}join` để nhập cuộc.. Xài `{p}start` để bắt đầu game."
 	]
 }
