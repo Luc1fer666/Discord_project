@@ -53,7 +53,7 @@
 	        "Lông sói gây cho 1 người dị ứng."
 	],
 	"lynched": [
-		"làng quyết định treo **{lynched_name}**, là **{lynched_role}**.",
+		"làng quyết định treo **{lynched_name}**.",
 		"Làng phẫu thuật lấy não của **{lynched_name}**. Họ bỏ não cho chó gặm.",
 		"Làng quyết định hiếp râm tập thể **{lynched_name}** đến chết. Họ chôn xác ở dưới sông.",
 		"**{lynched_name}** tự nhảy vào giếng.",
