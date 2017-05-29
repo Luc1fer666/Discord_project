@@ -32,8 +32,8 @@
 		"Bạn đang nhây trong đây rồi! :joy:"
 	],
 	"leavelobby": [
-		"**{c}** rời trò chơi. Bây giờ còn **{0}** người chơi trong sảnh. :cry:",
-		"**{c}** đi ra khỏi sảnh. Còn **{0}** người chơi :cry:",
+		"**{0}** rời trò chơi. Bây giờ còn **{1}** người chơi trong sảnh. :cry:",
+		"**{0}** đi ra khỏi sảnh. Còn **{1}** người chơi :cry:",
 		"**{0}** bị chim ị vào đầu đến chết, người chơi còn lại: **{1}** :joy:",
 		"**{0}** thủ dâm quá độ nên chết. Người chơi còn lại: **{1}** :joy:",
 		"**{0}** té giếng chết. **{1}** người còn lại té ra cười. :joy:"
@@ -65,10 +65,10 @@
 		"Quyết định treo **{0}**; nhưng nó tự vấp té và chết. :joy:"
 	],
 	"hastotem": [
-		"**{t}** đang sở hữu một bùa chú bí ẩn... :v:"
+		"**{0}** đang sở hữu một bùa chú bí ẩn... :v:"
 	],
 	"hastotem2": [
-		"**{t}** được đặt tay lên 1 bùa chú huyền ảo...:v:"
+		"**{0}** được đặt tay lên 1 bùa chú huyền ảo...:v:"
 	],
 	"hastotems": [
 		"**{0}**, và **{1}** đang giữ những bùa chú huyền bí...:v:"
