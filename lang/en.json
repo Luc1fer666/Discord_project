@@ -14,79 +14,79 @@
 		"{bot_nick}.exe has stopped responding. Windows is checking for a solution to the problem..."
 	],
 	"maxplayers": [
-		"Đã có số lượng người chơi tối đa ({m}) tham gia trò chơi.",
-		"Không còn chỗ cho bạn chơi đâu. Đã có {m} người chơi ở sảnh rồi."
+		"Đã có số lượng người chơi tối đa ({m}) tham gia trò chơi. :smiley:",
+		"Không còn chỗ cho bạn chơi đâu. Đã có {m} người chơi ở sảnh rồi. :cry:"
 	],
 	"minplayers": [
-		"Hãy chờ đợi cho đến khi có ít nhất {m} người chơi.",
-		"Không thể bắt đầu trò chơi nếu chỉ có {m} người chơi."
+		"Hãy chờ đợi cho đến khi có ít nhất {m} người chơi. :smiley:",
+		"Không thể bắt đầu trò chơi nếu chỉ có {m} người chơi. :cry:"
 	],
 	"notplayingstart": [
-		"Bạn không có đang tham gia nên không thể bắt đầu trò chơi! Gõ `!join` để nhập cuộc."
+		"Bạn không có đang tham gia nên không thể bắt đầu trò chơi! Gõ `!join` để nhập cuộc. :smiley:"
 	],
 	"notplayingleave": [
-		"Không chơi thì làm éo gì rời!"
+		"Không chơi thì làm éo gì rời! :joy:"
 	],
 	"alreadyin": [
 		"Bạn đang chơi rồi!",
-		"Bạn đang nhây trong đây rồi!"
+		"Bạn đang nhây trong đây rồi! :joy:"
 	],
 	"leavelobby": [
-		"**{c}** rời trò chơi. Bây giờ còn **{0}** người chơi trong sảnh.",
-		"**{c}** đi ra khỏi sảnh. Còn **{0}** người chơi",
-		"**{0}** bị chim ị vào đầu đến chết, người chơi còn lại: **{1}**",
-		"**{0}** thủ dâm quá độ nên chết. Người chơi còn lại: **{1}**",
-		"**{0}** té giếng chết. **{1}** người còn lại té ra cười."
+		"**{c}** rời trò chơi. Bây giờ còn **{0}** người chơi trong sảnh. :cry:",
+		"**{c}** đi ra khỏi sảnh. Còn **{0}** người chơi :cry:",
+		"**{0}** bị chim ị vào đầu đến chết, người chơi còn lại: **{1}** :joy:",
+		"**{0}** thủ dâm quá độ nên chết. Người chơi còn lại: **{1}** :joy:",
+		"**{0}** té giếng chết. **{1}** người còn lại té ra cười. :joy:"
 	],
 	"gamestart": [
 		"**{0}** đang muốn mở game ma sói. Gõ `{p}join` để chơi. Gõ `{p}start` để bắt đầu game.",
 		"**{0}** muốn chơi game ma sói. Gõ `{p}start` để bắt đầu game. Gõ `{p}join` để nhập cuộc."
 	],
 	"nokills": [
-		"Làng phát hiện có bao cao su vương vãi, ngoài ra thì không có gì bất thường.",
-		"Dân làng phát hiện thú cưng mèo yêu quý đã bị giết nhưng ngoài ra ko ai bị thương.",
-		"Làng phát hiện nước tràn bờ đê, ngoài ra ko có gì xảy ra.",
-		"Vết chân sói ở khắp nơi nhưng không ai bị thương.",
-		"Một vài cánh cửa bị mở",
-	        "Mùi mồ hôi sói nồng nặc không khí",
-	        "Phân của sói chôn chưa xong được tìm thấy.",
-	        "Lông sói gây cho 1 người dị ứng."
+		"Làng phát hiện có bao cao su vương vãi, ngoài ra thì không có gì bất thường. :joy:",
+		"Dân làng phát hiện thú cưng mèo yêu quý đã bị giết nhưng ngoài ra ko ai bị thương. :joy:",
+		"Làng phát hiện nước tràn bờ đê, ngoài ra ko có gì xảy ra. :joy:",
+		"Vết chân sói ở khắp nơi nhưng không ai bị thương. :joy:",
+		"Một vài cánh cửa bị mở :scream:",
+	        "Mùi mồ hôi sói nồng nặc không khí :joy:",
+	        "Phân của sói chôn chưa xong được tìm thấy. :joy:",
+	        "Lông sói gây cho 1 người dị ứng. :joy:"
 	],
 	"lynched": [
-		"làng quyết định treo **{0}**.",
-		"Làng phẫu thuật lấy não của **{0}**. Họ bỏ não cho chó gặm.",
-		"Làng quyết định hiếp râm tập thể **{0}** đến chết. Họ chôn xác ở dưới sông.",
-		"**{0}** tự nhảy vào giếng.",
-		"Làng hiến tế **{0}** cho Lucifer, Lucifer đang thỏa mãn vì vừa được cúng.",
-		"VÌ KHOA HỌC, Làng ném **{0}** vào núi lửa :).Họ phát hiện rằng nhiệt độ nóng chảy của nó là thấp hơn của dung nham.",
-		"Làng ép **{0}** chơi Russian Roulette. Không may thay, máu bắn tung tóe khắp nơi.",
-		"Làng ép **{0}** tự tử.",
-		"Sau khi chống cự vô ích, **{0}** bị giết.",
-		"Quyết định treo **{0}**; nhưng nó tự vấp té và chết."
+		"làng quyết định treo **{0}**. :skull:",
+		"Làng phẫu thuật lấy não của **{0}**. Họ bỏ não cho chó gặm. :skull:",
+		"Làng quyết định hiếp râm tập thể **{0}** đến chết. Họ chôn xác ở dưới sông. :skull:",
+		"**{0}** tự nhảy vào giếng. :skull:",
+		"Làng hiến tế **{0}** cho Lucifer, Lucifer đang thỏa mãn vì vừa được cúng. :skull:",
+		"VÌ KHOA HỌC, Làng ném **{0}** vào núi lửa :).Họ phát hiện rằng nhiệt độ nóng chảy của nó là thấp hơn của dung nham. :skull:",
+		"Làng ép **{0}** chơi Russian Roulette. Không may thay, máu bắn tung tóe khắp nơi. :skull:",
+		"Làng ép **{0}** tự tử. :skull:",
+		"Sau khi chống cự vô ích, **{0}** bị giết. :cry:",
+		"Quyết định treo **{0}**; nhưng nó tự vấp té và chết. :joy:"
 	],
 	"hastotem": [
-		"**{t}** đang sở hữu một bùa chú bí ẩn..."
+		"**{t}** đang sở hữu một bùa chú bí ẩn... :v:"
 	],
 	"hastotem2": [
-		"**{t}** được đặt tay lên 1 bùa chú huyền ảo..."
+		"**{t}** được đặt tay lên 1 bùa chú huyền ảo...:v:"
 	],
 	"hastotems": [
-		"**{0}**, và **{1}** đang giữ những bùa chú huyền bí..."
+		"**{0}**, và **{1}** đang giữ những bùa chú huyền bí...:v:"
 	],
 	"leavedeath": [
-		"**{0}** tự nhiên bùng cháy. Không khí thơm mùi mỡ nướng của **{1}**.",
-		"Khi đang thẩm du, **{0}**,là **{1}**, bị sụp mái nhà chết.",
-		"Lúc đang tắm sông, **{0}**, là **{1}**, bị thủy vương bắt về làm vợ.",
-		"Tự dưng đột quỵ, **{0}**, là **{1}**, lăn đùng ra chết.",
-		"Trong lúc đi ngủ, **{0}**, là **{1}**, ngủ say quá nên chết luôn.",
-		"Bị đau đầu nên tự đi đập đầu, **{0}**, là **{1}** chết nát sọ.",
-		"**{0}** vào rừng xà nude xong không quay trở lại, chả ai biết người **{1}** đã đi đâu.",
-		"Bị táo rụng trúng đầu, **{0}**, là **{1}**, phát minh ra môn vật lí nên bị dân ghét đập chết.",
-		"**{0}**, là **{1}**, Bị trời đụ nên chết.",
-        	"Một con gà bị H5N1 lây cúm cho **{0}**, là **{1}**, nó chết.",
-	        "**{0}**, là **{1}**, bị ghét nên tự tử."
+		"**{0}** tự nhiên bùng cháy. Không khí thơm mùi mỡ nướng của **{1}**. :joy:",
+		"Khi đang thẩm du, **{0}**,là **{1}**, bị sụp mái nhà chết. :joy:",
+		"Lúc đang tắm sông, **{0}**, là **{1}**, bị thủy vương bắt về làm vợ. :joy:",
+		"Tự dưng đột quỵ, **{0}**, là **{1}**, lăn đùng ra chết. :joy:",
+		"Trong lúc đi ngủ, **{0}**, là **{1}**, ngủ say quá nên chết luôn. :joy:",
+		"Bị điên nên tự đi đập đầu, **{0}**, là **{1}** chết nát sọ. :joy:",
+		"**{0}** vào rừng xà nude xong không quay trở lại, chả ai biết người **{1}** đã đi đâu. :cry:",
+		"Bị táo rụng trúng đầu, **{0}**, là **{1}**, phát minh ra môn vật lí nên bị dân ghét đập chết. :joy:",
+		"**{0}**, là **{1}**, Bị trời đụ nên chết. :joy:",
+        	"Một con gà bị H5N1 lây cúm cho **{0}**, là **{1}**, nó chết. :joy:",
+	        "**{0}**, là **{1}**, bị ghét nên tự tử. :cry:"
 	],
 	"firstjoin": [
-		"**{0}** đã bắt đầu 1 trò chơi ma sói. Gõ `{p}join` để nhập cuộc.. Xài `{p}start` để bắt đầu game."
+		"**{0}** đã bắt đầu 1 trò chơi ma sói. Gõ `{p}join` để nhập cuộc.. Xài `{p}start` để bắt đầu game. :smiley:"
 	]
 }
