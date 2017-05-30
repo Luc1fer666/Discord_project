@@ -28,8 +28,8 @@
 		"Bạn đang nhây trong đây rồi!"
 	],
 	"leavelobby": [
-		"**{c}** rời trò chơi. Bây giờ còn **{0}** người chơi trong sảnh.",
-		"**{c}** đi ra khỏi sảnh. Còn **{0}** người chơi."
+		"**{0}** rời trò chơi. Bây giờ còn **{0}** người chơi trong sảnh.",
+		"**{0}** đi ra khỏi sảnh. Còn **{0}** người chơi."
 	],
 	"gamestart": [
 		"**{0}** đang muốn mở game ma sói. Gõ `{p}join` để chơi. Gõ `{p}start` để bắt đầu game.",
@@ -54,12 +54,12 @@
 		"Quyết định treo **{lynched_name}**; nhưng nó tự vấp té và chết."
 	],
 	"hastotem": [
-		"**{t}** đang sở hữu một bùa chú bí ẩn...",
-		"**{t}** được đặt tay lên 1 bùa chú huyền ảo..."
+		"**{0}** đang sở hữu một bùa chú bí ẩn...",
+		"**{0}** được đặt tay lên 1 bùa chú huyền ảo..."
 	],
 	"havetotems": [
-		"**{t}** and **{u}** are in possession of a mysterious totem...",
-		"**{t}** and **{u}** have their hands on a mysterious totem..."
+		"**{0}** and **{u}** are in possession of a mysterious totem...",
+		"**{0}** and **{u}** have their hands on a mysterious totem..."
 	],
 	"leavedeath": [
 		"**{0}** spontaneously combusted. The air smells of freshly burnt **{1}**.",
