@@ -521,7 +521,7 @@ async def cmd_role(message, parameters):
         msg = "**{}** người chơi đang chơi **{}** gamemode:```\n".format(len(session[1]),
         'roles' if session[6].startswith('roles') else session[6])
         if session[6] in ('random',):
-            msg += "!role không thể xài trong {} gamemode.\n```".format(session[6])
+            msg += "!role đã bị tắt cho {} gamemode.\n```".format(session[6])
             await reply(message, msg)
             return
 
