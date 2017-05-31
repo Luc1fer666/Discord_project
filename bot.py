@@ -2431,7 +2431,7 @@ async def run_game():
     if not get_roles(session[6], len(session[1])):
         session[6] = 'default' # Fallback if invalid number of players for gamemode or invalid gamemode somehow
 
-	for stasised in [x for x in stasis if stasis[x] > 0]:
+    for stasised in [x for x in stasis if stasis[x] > 0]:
         stasis[stasised] -= 1
     await client.send_message(client.get_channel(GAME_CHANNEL), "<@{}>, Chào mừng tới Ma sói, 1 trò chơi nổi tiếng :smiley:. "
                               "Đang dùng chế độ chơi **{}** với **{}** người chơi.\nTất cả người chơi kiểm tra tin nhắn từ tôi để có hướng dẫn.:joy: "
