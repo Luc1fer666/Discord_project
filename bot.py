@@ -515,7 +515,7 @@ async def cmd_deop(message, parameters):
                      "Nếu để trống, cho danh sách các vai.```", 'roles')
 async def cmd_role(message, parameters):
 	if parameters == "" and not session[0] or parameters == 'list':
-        await reply(message, "Roles: " + ", ".join(sort_roles(roles)))
+        await reply(message, "Roles: " + ", ".join(sort_roles(roles))) #bitch
         return
     elif parameters == "" and session[0]:
         msg = "**{}** người chơi đang chơi **{}** gamemode:```\n".format(len(session[1]),
