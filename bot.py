@@ -40,17 +40,22 @@ else:
 random.seed(datetime.now())
 
 def get_jsonparsed_data(url):
-    response = urllib.request.urlopen(url)
-    if response.code / 100 >= 4:
-        return None # url does not exist
+    try:
+		response = urllib.request.urlopen(url)
+	except urllib.error.HTTPError:
+		return None, None # url does not exist
     data = response.read().decode("utf-8")
-    return json.loads(data)
-
-url = "https://rawgit.com/Luc1fer666/Discord_project/master/lang/" + MESSAGE_LANGUAGE + ".json"
-lang = get_jsonparsed_data(url)
-if not lang:
-    print("Could not find language {}, fallback on en".format(MESSAGE_LANGUAGE))
-    lang = get_jsonparsed_data("https://rawgit.com/Luc1fer666/Discord_project/master/lang/")
+    return json.loads(data), data
+	
+def load_language(language):
+	file = 'lang/{}.json'.format(language)
+	if not os.path.isfile(file):
+		file = 'lang/en.json'
+		print("Could not find language file {}.json, fallback on en.json".format(language))
+	with open(file, 'r', encoding='utf-8') as f:
+		return json.load(f)
+		
+lang = load_language(MESSAGE_LANGUAGE)
 
 def cmd(name, perms, description, *aliases):
     def real_decorator(func):
@@ -95,7 +100,14 @@ async def on_ready():
         await log(0, "Werewolf Notify role id: " + WEREWOLF_NOTIFY_ROLE.id)
     else:
         await log(2, "Could not find Werewolf Notify role " + WEREWOLF_NOTIFY_ROLE_NAME)
+    if PLAYING_MESSAGE:
+        await client.change_presence(status=discord.Status.online, game=discord.Game(name=PLAYING_MESSAGE))
 
+@client.event
+async def on_resume():
+    print("RESUMED")
+    await log(1, "on_resume triggered!")
+	
 @client.event
 async def on_message(message):
     if message.author.id in [client.user.id] + IGNORE_LIST or not client.get_server(WEREWOLF_SERVER).get_member(message.author.id):
@@ -176,6 +188,45 @@ async def cmd_exec(message, parameters):
     if output == '':
         output = ":thumbsup:"
     await client.send_message(message.channel, output)
+	
+@cmd('async', [2, 2], "```\n{0}async <code>\n\nExecutes <code> as a coroutine.```")
+async def cmd_async(message, parameters, recursion=0):
+    if parameters == '':
+        await reply(message, commands['async'][2].format(PREFIX))
+        return
+    env = {'message' : message,
+           'parameters' : parameters,
+           'recursion' : recursion,
+           'client' : client,
+           'channel' : message.channel,
+           'author' : message.author,
+           'server' : message.server}
+    env.update(globals())
+    old_stdout = sys.stdout
+    redirected_output = sys.stdout = StringIO()
+    result = None
+    exec_string = "async def _temp_exec():\n"
+    exec_string += '\n'.join(' ' * 4 + line for line in parameters.split('\n'))
+    try:
+        exec(exec_string, env)
+    except Exception:
+        traceback.print_exc()
+        result = traceback.format_exc()
+    else:
+        _temp_exec = env['_temp_exec']
+        try:
+            returnval = await _temp_exec()
+            value = redirected_output.getvalue()
+            if returnval == None:
+                result = value
+            else:
+                result = value + '\n' + str(returnval)
+        except Exception:
+            traceback.print_exc()
+            result = traceback.format_exc()
+    finally:
+        sys.stdout = old_stdout
+    await client.send_message(message.channel, "```py\n{}\n```".format(result))
 
 @cmd('help', [0, 0], "```\n{0}help <command>\n\nCho biết thông tin về <command>. Try {0}list for a listing of commands.```")
 async def cmd_help(message, parameters):
@@ -234,11 +285,12 @@ async def cmd_leave(message, parameters):
         await client.send_message(client.get_channel(GAME_CHANNEL), random.choice(lang['leavedeath']).format(message.author.name, get_role(message.author.id, 'death')))
         await client.remove_roles(client.get_server(WEREWOLF_SERVER).get_member(message.author.id), PLAYERS_ROLE)
         if message.author.id in stasis:
-            stasis[message.author.id] += 2
+            stasis[message.author.id] += QUIT_GAME_STASIS
         else:
-            stasis[message.author.id] = 2
+            stasis[message.author.id] = QUIT_GAME_STASIS
         if session[0] and win_condition() == None:
             await check_traitor()
+		await log(1, "{} ({}) QUIT DURING GAME".format(message.author.display_name, message.author.id))
     else:
         if message.author.id in session[1]:
             if session[0]:
@@ -328,20 +380,17 @@ async def cmd_fleave(message, parameters):
 
 @cmd('refresh', [1, 1], "```\n{0}refresh [<language file>]\n\nRefreshes the current language's language file from GitHub. Admin only.```")
 async def cmd_refresh(message, parameters):
+    global lang
     if parameters == '':
         parameters = MESSAGE_LANGUAGE
     url = "https://raw.githubusercontent.com/belguawhale/Discord-Werewolf/master/lang/{}.json".format(parameters)
     codeset = parameters
-    temp_lang = get_jsonparsed_data(url)
+    temp_lang, temp_str = get_jsonparsed_data(url)
     if not temp_lang:
-        url = "https://raw.githubusercontent.com/belguawhale/Discord-Werewolf/master/lang/en.json"
-        codeset = 'en'
-        temp_lang = get_jsonparsed_data(url)
-    if not temp_lang:
-        await reply(message, "Error: could not refresh language messages.")
-        await log(3, "Refresh of language code {} and fallback failed".format(parameters))
+		await reply(message, "Could not refresh language {} from Github.".format(parameters))
         return
-    global lang
+    with open('lang/{}.json'.format(parameters), 'w', encoding='utf-8') as f:
+        f.write(temp_str)
     lang = temp_lang
     await reply(message, 'The messages with language code `' + codeset + '` have been refreshed from GitHub.')
 
@@ -465,7 +514,7 @@ async def cmd_deop(message, parameters):
                      "only a <gamemode> is given, displays a role guide for <gamemode>. "
                      "Nếu để trống, cho danh sách các vai.```", 'roles')
 async def cmd_role(message, parameters):
-    if parameters == "" and not session[0]:
+	if parameters == "" and not session[0] or parameters == 'list':
         await reply(message, "Roles: " + ", ".join(sort_roles(roles)))
         return
     elif parameters == "" and session[0]:
@@ -600,7 +649,7 @@ async def _send_role_info(player, sendrole=True):
                         if session[1][player][2] in totems:
                             totem = session[1][player][2]
                             msg += "Bạn có bùa **{0}**. {1}".format(totem.replace('_', ' '), totems[totem]) + '\n'
-                    if role in ['wolf', 'werecrow', 'werekitten', 'traitor', 'harlot', 'seer',
+                    if role in ['wolf', 'werecrow', 'werekitten', 'traitor', 'sorcerer', 'harlot', 'seer',
                                 'shaman', 'hunter', 'detective', 'crazed shaman']:
                         msg += "Living players: " + living_players_string + '\n\n'
                     if 'gunner' in templates:
@@ -715,7 +764,7 @@ async def cmd_stats(message, parameters):
         else:
             await client.send_message(message.channel, "{} người chơi trong sảnh: ```\n{}\n```".format(num_players, '\n'.join(players)))
 
-@cmd('revealroles', [1, 1], "```\n{0}revealroles takes no arguments\n\nDisplays what each user's roles are and sends it in pm.```")
+@cmd('revealroles', [1, 1], "```\n{0}revealroles takes no arguments\n\nDisplays what each user's roles are and sends it in pm.```", 'rr')
 async def cmd_revealroles(message, parameters):
     msg = "**Gamemode**: {}```diff\n".format(session[6])
     for player in sort_players(session[1]):
@@ -928,7 +977,7 @@ async def cmd_retract(message, parameters):
             await reply(message, "Bạn đã rút lại phiếu bầu.")
             await log(1, "{0} ({1}) RETRACT VOTE".format(get_name(message.author.id), message.author.id))
         else:
-            if session[1][message.author.id][1] in ['wolf', 'werecrow', 'werekitten']:
+            if session[1][message.author.id][1] in ACTUAL_WOLVES:
                 if not message.channel.is_private:
                     try:
                         await client.send_message(message.author, "Xài lệnh retract trong chat riêng với bot.")
@@ -1542,13 +1591,16 @@ async def cmd_shoot(message, parameters):
                 wolf = get_role(message.author.id, 'role') in WOLFCHAT_ROLES
                 session[1][message.author.id][4].remove('bullet')
                 outcome = ''
-                if get_role(target, 'role') in ['wolf', 'werecrow']:
-                    if wolf:
+				if wolf:
+					if get_role(target, 'role') in WOLFCHAT_ROLES:
                         outcome = 'miss'
-                    else:
-                        outcome = 'killwolf'
-                elif get_role(target, 'role') in ['werekitten']:
-                    outcome = random.choice(['suicide'] * GUNNER_SUICIDE + ['miss'] * (GUNNER_MISS + GUNNER_HEADSHOT + GUNNER_INJURE))
+				else:
+                    if get_role(target, 'role') in ACTUAL_WOLVES:
+                        if get_role(target, 'role') in ['werekitten']:
+                            outcome = random.choice(['suicide'] * GUNNER_SUICIDE + ['miss'] * (GUNNER_MISS + GUNNER_HEADSHOT + GUNNER_INJURE))
+                        else:
+                            outcome = 'killwolf'
+                if outcome == '':
                 else:
                     outcome = random.choice(['miss'] * GUNNER_MISS + ['suicide'] * GUNNER_SUICIDE \
                                              + ['killvictim'] * GUNNER_HEADSHOT + ['injure'] * GUNNER_INJURE)
@@ -1602,17 +1654,57 @@ async def cmd_fsay(message, parameters):
     else:
         await reply(message, commands['fsay'][2].format(BOT_PREFIX))
     
-@cmd('observe', [2, 0], "```\n{0}observe <player>\n\nNếu bạn là Werecrow, cho bạn biết rằng <player> có ở trên giường hay không.```")
+@cmd('observe', [2, 0], "```\n{0}observe <player>\n\nNếu bạn là Werecrow, cho bạn biết rằng <player> có ở trên giường hay không.```"
+						"Nếu là pháp sư, cho biết nếu <player> có năng lực đặc biệt hay không VD:(seer, etc.).```")
 async def cmd_observe(message, parameters):
     if not session[0] or message.author.id not in session[1] or get_role(message.author.id, 'role') not in COMMANDS_FOR_ROLE['observe'] or not session[1][message.author.id][0]:
         return
     if session[2]:
         await reply(message, "Bạn chỉ có thể quan sát vào buổi tối.")
         return
-    if 'observe' in session[1][message.author.id][4]:
-        await reply(message, "Bạn đã đang theo dõi người khác rồi!.")
-    else:
-        if parameters == "":
+    if get_role(message.author.id, 'role') == 'werecrow':
+        if 'observe' in session[1][message.author.id][4]:
+            await reply(message, "You are already observing someone!.")
+        else:
+            if parameters == "":
+                await reply(message, roles[session[1][message.author.id][1]][2])
+            else:
+                player = get_player(parameters)
+                if player:
+                    if player == message.author.id:
+                        await reply(message, "That would be a waste.")
+                    elif player in [x for x in session[1] if roles[get_role(x, 'role')][0] == 'wolf' and get_role(x, 'role') != 'cultist']:
+                        await reply(message, "Observing another wolf is a waste of time.")
+                    elif not session[1][player][0]:
+                        await reply(message, "Player **" + get_name(player) + "** is dead!")
+                    else:
+                        session[1][message.author.id][4].append('observe')
+                        await reply(message, "You transform into a large crow and start your flight to **{0}'s** house. You will "
+                                            "return after collecting your observations when day begins.".format(get_name(player)))
+                        await wolfchat("**{}** is observing **{}**.".format(get_name(message.author.id), get_name(player)))
+                        await log(1, "{0} ({1}) OBSERVE {2} ({3})".format(get_name(message.author.id), message.author.id, get_name(player), player))
+                        while not session[2] and win_condition() == None and session[0]:
+                            await asyncio.sleep(0.1)
+                        if 'observe' in session[1][message.author.id][4]:
+                            session[1][message.author.id][4].remove('observe')
+                        if get_role(player, 'role') in ['seer', 'harlot', 'hunter']\
+                            and session[1][player][2] in set(session[1]) - set(player)\
+                            or get_role(player, 'role') in ['shaman', 'crazed shaman']\
+                            and session[1][player][2] in session[1]:
+                                msg = "not in bed all night"
+                        else:
+                                msg = "sleeping all night long"
+                        try:
+                            await client.send_message(message.author, "As the sun rises, you conclude that **{}** was {}, and you fly back to your house.".format(
+                                get_name(player), msg))
+                        except discord.Forbidden:
+                            pass
+                else:        
+                    await reply(message, "Could not find player " + parameters)
+    elif get_role(message.author.id, 'role') == 'sorcerer':
+        if session[1][message.author.id][2]:
+            await reply(message, "You have already used your power.")
+        elif parameters == "":
             await reply(message, roles[session[1][message.author.id][1]][2])
         else:
             player = get_player(parameters)
@@ -1621,31 +1713,21 @@ async def cmd_observe(message, parameters):
                     await reply(message, "Rảnh háng quá.")
                 elif player in [x for x in session[1] if roles[get_role(x, 'role')][0] == 'wolf' and get_role(x, 'role') != 'cultist']:
                     await reply(message, "Đi rình 1 con sói là 1 điêu thật rảnh háng.")
-                elif not session[1][player][0]:
+                elif player in [x for x in session[1] if not session[1][x][0]]:
                     await reply(message, "Người chơi **" + get_name(player) + "** chết rồi!")
                 else:
-                    session[1][message.author.id][4].append('observe')
-                    await reply(message, "Bạn biến thành 1 con quạ và bay đến nhà **{0}**. Bạn sẽ "
-                                         "trở về khi đã ghi nhận xong hết kết quả lúc sắp sáng.:sun_with_face:".format(get_name(player)))
+                    session[1][message.author.id][2] = player
+                    target_role = get_role(player, 'role')
+                    if target_role in ['seer', 'oracle', 'augur']:
+                        debug_msg = target_role
+                        msg = "**{}** là một **{}**!".format(get_name(player), get_role(player, 'role'))
+				else:
+                        debug_msg = "là người bình thường"
+                        msg = "**{}** không có khả năng đặc biệt.".format(get_name(player))
                     await wolfchat("**{}** đang theo dõi **{}**.".format(get_name(message.author.id), get_name(player)))
-                    await log(1, "{0} ({1}) OBSERVE {2} ({3})".format(get_name(message.author.id), message.author.id, get_name(player), player))
-                    while not session[2] and win_condition() == None and session[0]:
-                        await asyncio.sleep(0.1)
-                    if 'observe' in session[1][message.author.id][4]:
-                        session[1][message.author.id][4].remove('observe')
-                    if get_role(player, 'role') in ['seer', 'harlot', 'hunter']\
-                        and session[1][player][2] in set(session[1]) - set(player)\
-                        or get_role(player, 'role') in ['shaman', 'crazed shaman']\
-                        and session[1][player][2] in session[1]:
-                            msg = "Không ở trên giường :scream:"
-                    else:
-                            msg = "Ngủ say như chết :zzz:"
-                    try:
-                        await client.send_message(message.author, "Khi mặt trời ló dạng, bạn kết luận rằng **{}** là {}, và chạy như bay về nhà.:thumbsup: ".format(
-                            get_name(player), msg))
-                    except discord.Forbidden:
-                        pass
-            else:        
+                    await reply(message, "Sau khi thực thi nghi lễ, bạn nhận thấy " + msg)
+                    await log(1, "{0} ({1}) OBSERVE {2} ({3}) AS {4}".format(get_name(message.author.id), message.author.id, get_name(player), player, debug_msg))
+            else:
                 await reply(message, "Không tìm thấy người chơi " + parameters)
 
 @cmd('id', [2, 0], "```\n{0}id <player>\n\nNếu bạn là thám tử, điều tra <player> vào ban ngày.```")
@@ -1891,9 +1973,10 @@ async def end_game(reason, winners=None):
     else:
         if session[3][0]:
             session[4][0] += datetime.now() - session[3][0]
-    msg = PLAYERS_ROLE.mention + ":smiley: Game kết thúc! Màn đêm kéo dài **{0:02d}:{1:02d}**. Ban ngày kéo dài **{2:02d}:{3:02d}**. Nguyên game kéo dài **{4:02d}:{5:02d}**.:100: \n{6}\n\n".format(
-      session[4][0].seconds // 60, session[4][0].seconds % 60, session[4][1].seconds // 60, session[4][1].seconds % 60,
-      (session[4][0].seconds + session[4][1].seconds) // 60, (session[4][0].seconds + session[4][1].seconds) % 60, reason)
+    msg = "<@{}> Game kết thúc! :smiley: Đêm kéo dài **{:02d}:{:02d}**. Ngày kéo dài **{:02d}:{:02d}**. Game kéo dài **{:02d}:{:02d}**. \
+          \n{}\n\n".format('> <@'.join(sort_players(session[1])), session[4][0].seconds // 60, session[4][0].seconds % 60,
+          session[4][1].seconds // 60, session[4][1].seconds % 60, (session[4][0].seconds + session[4][1].seconds) // 60,
+          (session[4][0].seconds + session[4][1].seconds) % 60, reason)
     if not winners == None:
         for player in session[1]:
             # ALTERNATE WIN CONDITIONS
@@ -1912,8 +1995,6 @@ async def end_game(reason, winners=None):
     await log(1, "WINNERS: {}".format(winners))
 
     players = list(session[1])
-    for player in players:
-        del session[1][player]
     session[3] = [0, 0]
     session[4] = [timedelta(0), timedelta(0)]
     session[6] = ''
@@ -1926,9 +2007,8 @@ async def end_game(reason, winners=None):
         member = client.get_server(WEREWOLF_SERVER).get_member(player)
         if member:
             await client.remove_roles(member, PLAYERS_ROLE)
+		del session[1][player]
 
-    for stasised in [x for x in stasis if stasis[x] > 0]:
-        stasis[stasised] -= 1
     if faftergame:
         # !faftergame <command> [<parameters>]
         # faftergame.content.split(' ')[0] is !faftergame
@@ -1960,7 +2040,8 @@ def win_condition():
     elif teams['village'] + teams['neutral'] <= teams['wolf']:
         win_team = 'wolf'
         win_lore = 'Số dân khỏe mạnh còn sót lại bằng hoặc ít hơn số sói! Sói áp đảo dân làng và đã thống trị cả ngôi làng!.:skull:'
-    elif teams['wolf'] == 0 and injured_wolves == 0:
+    elif len([x for x in session[1] if session[1][x][0] and get_role(x, 'role') in ACTUAL_WOLVES + ['traitor']]) == 0:
+        # old version: teams['wolf'] == 0 and injured_wolves == 0:
         win_team = 'village'
         win_lore = 'Tất cả sói đã chết! Dân làng quyết định nướng thịt sói để ăn mừng chiến thắng cùng nhau!.:thumpsup:'
     else:
@@ -2132,8 +2213,7 @@ def get_roles(gamemode, players):
                     available_roles = [x for x in roles if x not in TEMPLATES_ORDERED\
                                         and x not in ('villager', 'cultist')]
                     gamemode_roles = dict((x, 0) for x in available_roles)
-                    wolves = [x for x in WOLF_ROLES_ORDERED if x not in ('cultist', 'traitor')]
-                    gamemode_roles[random.choice(wolves)] += 1 # ensure at least 1 wolf that can kill
+					gamemode_roles[random.choice(ACTUAL_WOLVES)] += 1 # ensure at least 1 wolf that can kill
                     for i in range(players - 1):
                         gamemode_roles[random.choice(available_roles)] += 1
                     gamemode_roles['gunner'] = random.randrange(int(players ** 1.2 / 4))
@@ -2151,8 +2231,9 @@ def get_roles(gamemode, players):
             else:
                 gamemode_roles = {}
                 for role in roles:
-                    if role in gamemodes[gamemode]['roles'] and gamemodes[gamemode]['roles'][role][players - gamemodes[gamemode]['min_players']] > 0:
-                        gamemode_roles[role] = gamemodes[gamemode]['roles'][role][players - gamemodes[gamemode]['min_players']]
+                    if role in gamemodes[gamemode]['roles'] and gamemodes[gamemode]['roles'][role][\
+                    players - MIN_PLAYERS] > 0:
+                        gamemode_roles[role] = gamemodes[gamemode]['roles'][role][players - MIN_PLAYERS]
                 return gamemode_roles
     return None
 
@@ -2261,21 +2342,24 @@ async def player_idle(message):
         if msg == None and message.author.id in session[1] and session[0] and session[1][message.author.id][0]:
             await client.send_message(client.get_channel(GAME_CHANNEL), message.author.mention + "**, Bạn đã treo máy hơi lâu rồi đấy. Nói gì trong chat đi nếu không bạn sẽ bị tuyên bố đã chết!.:scream:**")
             try:
-                await client.send_message(message.author, "**Bạn đã treo máy trong " + client.get_channel(GAME_CHANNEL).name + " hơi lâu rồi đấy. Hãy nói gì đó trong chat nếu không bạn sẽ bị tuyên bố đã chết.:joy:**")
+                await client.send_message(message.author, "**Bạn đã treo máy trong #" + client.get_channel(GAME_CHANNEL).name + " hơi lâu rồi đấy. Hãy nói gì đó trong chat nếu không bạn sẽ bị tuyên bố đã chết.:joy:**")
             except discord.Forbidden:
                 pass
-            msg = await client.wait_for_message(author=message.author, channel=client.get_channel(GAME_CHANNEL), timeout=60, check=check)
+            msg = await client.wait_for_message(author=message.author, channel=client.get_channel(GAME_CHANNEL), timeout=PLAYER_TIMEOUT2, check=check)
             if msg == None and message.author.id in session[1] and session[0] and session[1][message.author.id][0]:
                 await client.send_message(client.get_channel(GAME_CHANNEL), "**" + get_name(message.author.id) + "** Ngủ say như chết và.....chết thật :v.:joy: "
                                           "Kẻ còn sống đã chôn **" + get_role(message.author.id, 'death') + '**.')
                 if message.author.id in stasis:
-                    stasis[message.author.id] += 2
-                    # 2 because game will end and subtract 1
+                    stasis[message.author.id] += QUIT_GAME_STASIS
                 else:
-                    stasis[message.author.id] = 2
+                    stasis[message.author.id] = QUIT_GAME_STASIS
                 session[1][message.author.id][0] = False
-                await client.remove_roles(client.get_server(WEREWOLF_SERVER).get_member(message.author.id), PLAYERS_ROLE)
+                try:
+                    await client.remove_roles(client.get_server(WEREWOLF_SERVER).get_member(message.author.id), PLAYERS_ROLE)
+                except:
+                    pass
                 await check_traitor()
+				await log(1, "{} ({}) IDLE OUT".format(message.author.display_name, message.author.id))
 
 def is_online(user_id):
     member = client.get_server(WEREWOLF_SERVER).get_member(user_id)
@@ -2291,7 +2375,8 @@ async def check_traitor():
         if 'traitor' in other:
             # traitor already turned
             return
-    wolf_team_alive = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in WOLFCHAT_ROLES]
+    wolf_team_alive = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in [
+        'wolf', 'werecrow', 'werekitten', 'traitor']]
     wolf_team_no_traitors = [x for x in wolf_team_alive if get_role(x, 'role') != 'traitor']
     if len(wolf_team_no_traitors) == 0:
         if len(wolf_team_alive) == 0:
@@ -2346,10 +2431,13 @@ async def run_game():
     await client.edit_channel_permissions(client.get_channel(GAME_CHANNEL), client.get_server(WEREWOLF_SERVER).default_role, perms)
     if not get_roles(session[6], len(session[1])):
         session[6] = 'default' # Fallback if invalid number of players for gamemode or invalid gamemode somehow
-    await client.send_message(client.get_channel(GAME_CHANNEL), PLAYERS_ROLE.mention + ", Chào mừng đến game Ma sói, 1 trờ chơi phổ biến.:smiley: "
+
+	for stasised in [x for x in stasis if stasis[x] > 0]:
+        stasis[stasised] -= 1
+    await client.send_message(client.get_channel(GAME_CHANNEL), "<@{}>, Chào mừng tới Ma sói, 1 trò chơi nổi tiếng :smiley:. "
                               "Đang dùng chế độ chơi **{}** với **{}** người chơi.\nTất cả người chơi kiểm tra tin nhắn từ tôi để có hướng dẫn.:joy: "
-                              "Nếu ko nhận đc tin nhắn, hãy báo {}.:scream:".format('roles' if session[6].startswith('roles') else session[6],
-                              len(session[1]), client.get_server(WEREWOLF_SERVER).get_member(OWNER_ID).name))
+                              "Nếu ko nhận đc tin nhắn, hãy báo {}.:scream:".format('> <@'.join(sort_players(session[1])),
+                              session[6], len(session[1]), client.get_server(WEREWOLF_SERVER).get_member(OWNER_ID).name))
     await assign_roles(session[6])
     await game_loop()
 
@@ -2389,7 +2477,8 @@ async def game_loop(ses=None):
         while win_condition() == None and not session[2] and session[0]:
             end_night = True
             for player in session[1]:
-                if session[1][player][0] and session[1][player][1] in ['wolf', 'werecrow', 'werekitten', 'seer', 'harlot', 'hunter']:
+                if session[1][player][0] and session[1][player][1] in ['wolf', 'werecrow', 'werekitten', 'sorcerer',
+                                                                       'seer', 'harlot', 'hunter']:
                     end_night = end_night and (session[1][player][2] != '')
                 if session[1][player][0] and session[1][player][1] in ['shaman', 'crazed shaman']:
                     end_night = end_night and (session[1][player][2] in session[1])
@@ -2470,7 +2559,7 @@ async def game_loop(ses=None):
         wolf_turn = []
         
         for player in alive_players:
-            if get_role(player, 'role') in ['wolf', 'werecrow', 'werekitten']:
+            if get_role(player, 'role') in ACTUAL_WOLVES:
                 if session[1][player][2] in wolf_votes:
                     wolf_votes[session[1][player][2]] += 1
                 elif session[1][player][2] != "":
@@ -2498,7 +2587,7 @@ async def game_loop(ses=None):
                     killed_dict[harlot] += 1
                     killed_msg += "**{}** đã chết vào đêm qua.:skull: ".format(get_name(harlot))
                     wolf_deaths.append(harlot)
-                elif visited in [x for x in session[1] if get_role(x, 'role') in ['wolf', 'werecrow', 'werekitten']]:
+                elif visited in [x for x in session[1] if get_role(x, 'role') in ACTUAL_WOLVES]:
                     killed_dict[harlot] += 1
                     killed_msg += "**{}** đã chết vào đêm qua.:skull:\n".format(get_name(harlot))
                     wolf_deaths.append(harlot)
@@ -2540,8 +2629,18 @@ async def game_loop(ses=None):
 
             if player in wolf_deaths and killed_dict[player] > 0 and player not in death_totemed:
                 # player was targeted and killed by wolves
-                ret_lyc_count = session[1][player][4].count('retribution_totem') - session[1][player][4].count('lycanthropy_totem2')
-                if ret_lyc_count > 0:
+                if session[1][player][4].count('lycanthropy_totem') > 0:
+                    killed_dict[player] = 0
+                    wolf_turn.append(player)
+                    await wolfchat("{} is now a **wolf**!".format(get_name(player)))
+                    try:
+                        member = client.get_server(WEREWOLF_SERVER).get_member(player)
+                        if member:
+                            await client.send_message(member, "Bạn tỉnh dậy và thấy đau nhói, bạn nhận ra bạn đã bị tấn công bởi sói :scream: "
+                                                              "Bùa bạn đang giữ cháy sáng :fire: , và bạn biến thành sói! :scream:")
+                    except discord.Forbidden:
+                        pass
+                elif session[1][player][4].count('retribution_totem') > 0:
                     revenge_targets = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in [
                         'wolf', 'werecrow', 'werekitten']]
                     if get_role(player, 'role') == 'harlot' and get_role(session[1][player][2], 'role') in [
@@ -2550,22 +2649,12 @@ async def game_loop(ses=None):
                     else:
                         revenge_targets[:] = [x for x in revenge_targets if session[1][x][2] == wolf_killed]
                     revengekill = random.choice(revenge_targets)
-                    killed_dict[revengekill] += 1
+                    killed_dict[revengekill] += 100
                     if killed_dict[revengekill] > 0:
                         killed_msg += "Khi bị tấn công vào đêm qua, **{}** cầm lá bùa đang cháy sáng :fire:. Thi thể của **{}**".format(
                                         get_name(wolf_killed), get_name(revengekill))
                         killed_msg += ", được tìm thấy ở hiện trường.:skull:\n".format(get_role(revengekill, 'role'))
-                elif ret_lyc_count < 0:
-                    killed_dict[player] = 0
-                    wolf_turn.append(player)
-                    await wolfchat("{} đã biến thành **wolf**!".format(get_name(player)))
-                    try:
-                        member = client.get_server(WEREWOLF_SERVER).get_member(player)
-                        if member:
-                            await client.send_message(member, ":smiling_imp: Bạn tỉnh dậy và đau nhói, bạn nhận ra bạn đã bị sói cắn! "
-                                                              "Lá bùa của bạn cháy sáng, và bạn nhận ra bạn đã biến thành ma sói!:smiling_imp:")
-                    except discord.Forbidden:
-                        pass
+
             other = session[1][player][4][:]
             for o in other[:]:
                 # hacky way to get specific totems to last 2 nights
@@ -2595,12 +2684,12 @@ async def game_loop(ses=None):
                         target = random.choice(revenge_targets)
                         gunner_revenge.append(target)
                         session[1][player][4].remove('bullet')
-                        killed_dict[target] += 1
+                        killed_dict[target] += 100
                         if killed_dict[target] > 0:
                             killed_msg += "May thay **{}** có súng và đạn nên **{}** bị bắn chết.:joy:\n".format(
                                 get_name(player), get_name(target), get_role(target, 'death'))
                 if session[1][player][4].count('bullet') > 0:
-                    give_gun_targets = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in ['wolf', 'werecrow', 'werekitten', 'traitor']]
+                    give_gun_targets = [x for x in session[1] if session[1][x][0] and get_role(x, 'role') in WOLFCHAT_ROLES]
                     if len(give_gun_targets) > 0:
                         give_gun = random.choice(give_gun_targets)
                         if not 'gunner' in get_role(give_gun, 'templates'):
@@ -2882,7 +2971,7 @@ COMMANDS_FOR_ROLE = {'see' : ['seer'],
                      'give' : ['shaman'],
                      'visit' : ['harlot'],
                      'shoot' : ['gunner'],
-                     'observe' : ['werecrow'],
+                     'observe' : ['werecrow', 'sorcerer'],
                      'pass' : ['harlot', 'hunter'],
                      'id' : ['detective']}
 GAMEPLAY_COMMANDS = ['join', 'j', 'start', 'vote', 'lynch', 'v', 'abstain', 'abs', 'nl', 'stats', 'leave', 'q', 'role', 'roles']
@@ -2897,6 +2986,8 @@ roles = {'wolf' : ['wolf', 'wolves', "Mục tiêu của bạn là giết hết t
                                                 "để bầu chọn giết <player>."],
          'traitor' : ['wolf', 'traitors', "Bạn giống y hệt dân làng, nhưng bạn theo phe sói. Chỉ có thám tử mới có thể lật tẩy danh tính "
                                           "thật. Khi tất cả sói chết, bạn trở thành sói."],
+         'sorcerer' : ['wolf', 'sorcerers', "Bạn có thể dùng lệnh `observe <player>` trong tin nhắn riêng với bot vào ban đêm để xem người đó "
+                                            "có phải là tiên tri hay không. Bạn sẽ không bị soi bởi tiên tri và chỉ có detective mới có thể soi ra bạn."],
          'cultist' : ['wolf', 'cultists', "Vai trò của bạn là hỗ trợ phe sói giết hết dân làng."],
          'seer' : ['village', 'seers', "Vai trò của bạn là nhận diện sói; Bạn có 1 lần soi mỗi đêm. Gõ `see <player>` trong tin nhắn riêng với bot để xem vai người bạn chọn."],
          'shaman' : ['village', 'shamans', "Bạn chọn 1 người mỗi đêm để đưa bùa chú bằng lệnh `give <player>`. Bạn có thể tự cho mình bùa, nhưng bạn không cho cùng 1"
@@ -2928,11 +3019,50 @@ gamemodes = {
             'wolf' :
             [1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
             'werecrow' :
-            [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'werekitten' :
             [0, 0, 0, 0, 0, 0,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'traitor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            'sorcerer' :
+            [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1],
+            'cultist' :
+            [0, 0, 0, 1, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
+            'seer' :
+            [1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2],
+            'shaman' :
+            [0, 0, 0, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],
+            'harlot' :
+            [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            'hunter' :
+            [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            'detective' :
+            [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            'villager' :
+            [2, 3, 4, 3, 3, 3,  3, 4, 3, 3, 4, 4, 4, 5, 5, 6, 5],
+            'crazed shaman' :
+            [0, 0, 0, 0, 0, 1,  1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
+            'cursed villager' :
+            [0, 0, 1, 1, 1, 1,  1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3],
+            'gunner' :
+            [0, 0, 0, 0, 0, 0,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
+        },
+    'test' : {
+        'description' : "Gamemode thử nghiệm, nên ko dùng.",
+        'min_players' : 5,
+        'max_players' : 20,
+        'roles' : {
+            #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20
+            'wolf' :
+            [1, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
+            'werecrow' :
+            [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            'werekitten' :
+            [0, 0, 0, 0, 0, 0,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            'traitor' :
+            [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            'sorcerer' :
+            [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 0, 0, 0, 1],
             'cultist' :
             [0, 0, 0, 1, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
             'seer' :
@@ -2955,43 +3085,6 @@ gamemodes = {
             [0, 0, 1, 1, 1, 1,  1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3],
             'gunner' :
             [0, 0, 0, 0, 0, 0,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
-        },
-    'test' : {
-        'description' : "Gamemode thử nghiệm, nên ko dùng.",
-        'min_players' : 5,
-        'max_players' : 20,
-        'roles' : {
-            #4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19,20
-            'wolf' :
-            [0, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
-            'werecrow' :
-            [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2],
-            'werekitten' :
-            [0, 0, 0, 0, 0, 0,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            'traitor' :
-            [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
-            'cultist' :
-            [0, 0, 0, 1, 0, 0,  0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0],
-            'seer' :
-            [0, 1, 1, 1, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            'shaman' :
-            [0, 0, 0, 1, 1, 1,  1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2],
-            'harlot' :
-            [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2],
-            'hunter' :
-            [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
-            'detective' :
-            [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 2],
-            'villager' :
-            [0, 3, 4, 3, 3, 3,  3, 4, 3, 3, 4, 2, 2, 3, 3, 4, 3],
-            'crazed shaman' :
-            [0, 0, 0, 0, 0, 1,  1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2],
-			'fool' :
-            [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            'cursed villager' :
-            [0, 0, 1, 1, 1, 1,  1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3],
-            'gunner' :
-            [0, 0, 0, 0, 0, 0,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]}
     },
     'foolish' : {
         'description' : "Cẩn thận, vì thằng ngu có thể nhảy ra từ bất kì đâu để cướp chiến thắng!.",
@@ -3002,11 +3095,13 @@ gamemodes = {
             'wolf' :
             [0, 0, 0, 0, 1, 1,  2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3],
             'werecrow' :
-            [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'werekitten' :
             [0, 0, 0, 0, 0, 0,  0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
             'traitor' :
             [0, 0, 0, 0, 1, 1,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            'sorcerer' :
+            [0, 0, 0, 0, 0, 0,  0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1],
             'cultist' :
             [0, 0, 0, 0, 0, 0,  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
             'seer' :
@@ -3191,7 +3286,7 @@ gamemodes = {
 gamemodes['belunga']['roles'] = dict(gamemodes['default']['roles'])
 
 VILLAGE_ROLES_ORDERED = ['seer', 'shaman', 'harlot', 'hunter', 'detective', 'villager']
-WOLF_ROLES_ORDERED = ['wolf', 'werecrow', 'werekitten', 'traitor', 'cultist']
+WOLF_ROLES_ORDERED = ['wolf', 'werecrow', 'werekitten', 'traitor', 'sorcerer', 'cultist']
 NEUTRAL_ROLES_ORDERED = ['crazed shaman', 'fool']
 TEMPLATES_ORDERED = ['cursed villager', 'gunner']
 totems = {'death_totem' : 'Người chơi nhận được bùa này sẽ hi sinh tối nay.',
@@ -3207,9 +3302,10 @@ totems = {'death_totem' : 'Người chơi nhận được bùa này sẽ hi sinh
           'deceit_totem' : 'Nếu người giữ lá bùa này bị soi bởi tiên tri tối nay thì kết quả soi của tiên tri sẽ trái ngược với sự thật '
                            'Nếu tiên tri giữ lá bùa này, kết quả soi tối nay của họ sẽ bị đảo ngược.'}
 SHAMAN_TOTEMS = ['death_totem', 'protection_totem', 'revealing_totem', 'influence_totem', 'impatience_totem', 'pacifism_totem', 'retribution_totem']
-ROLES_SEEN_VILLAGER = ['villager', 'traitor', 'cultist', 'fool', 'werekitten']
+ROLES_SEEN_VILLAGER = ['werekitten', 'traitor', 'sorcerer', 'cultist', 'villager', 'fool']
 ROLES_SEEN_WOLF = ['wolf', 'werecrow', 'cursed']
-WOLFCHAT_ROLES = ['wolf', 'werecrow', 'werekitten', 'traitor', 'cultist']
+ACTUAL_WOLVES = ['wolf', 'werecrow', 'werekitten']
+WOLFCHAT_ROLES = ['wolf', 'werecrow', 'werekitten', 'traitor', 'sorcerer', 'cultist']
 
 ########### END POST-DECLARATION STUFF #############
 client.loop.create_task(do_rate_limit_loop())
