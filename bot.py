@@ -1720,7 +1720,7 @@ async def cmd_observe(message, parameters):
                     if target_role in ['seer', 'oracle', 'augur']:
                         debug_msg = target_role
                         msg = "**{}** là một **{}**!".format(get_name(player), get_role(player, 'role'))
-				else:
+                    else:
                         debug_msg = "là người bình thường"
                         msg = "**{}** không có khả năng đặc biệt.".format(get_name(player))
                     await wolfchat("**{}** đang theo dõi **{}**.".format(get_name(message.author.id), get_name(player)))
