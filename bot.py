@@ -290,7 +290,7 @@ async def cmd_leave(message, parameters):
             stasis[message.author.id] = QUIT_GAME_STASIS
         if session[0] and win_condition() == None:
             await check_traitor()
-		await log(1, "{} ({}) QUIT DURING GAME".format(message.author.display_name, message.author.id))
+	await log(1, "{} ({}) QUIT DURING GAME".format(message.author.display_name, message.author.id))
     else:
         if message.author.id in session[1]:
             if session[0]:
