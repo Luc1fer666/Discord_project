@@ -2212,7 +2212,7 @@ def get_roles(gamemode, players):
                     available_roles = [x for x in roles if x not in TEMPLATES_ORDERED\
                                         and x not in ('villager', 'cultist')]
                     gamemode_roles = dict((x, 0) for x in available_roles)
-					gamemode_roles[random.choice(ACTUAL_WOLVES)] += 1 # ensure at least 1 wolf that can kill
+                    gamemode_roles[random.choice(ACTUAL_WOLVES)] += 1 # ensure at least 1 wolf that can kill
                     for i in range(players - 1):
                         gamemode_roles[random.choice(available_roles)] += 1
                     gamemode_roles['gunner'] = random.randrange(int(players ** 1.2 / 4))
