@@ -41,7 +41,7 @@ random.seed(datetime.now())
 
 def get_jsonparsed_data(url):
     try:
-		response = urllib.request.urlopen(url)
+		response = urllib.request.urlopen(url) #just some normie shit
 	except urllib.error.HTTPError:
 		return None, None # url does not exist
     data = response.read().decode("utf-8")
