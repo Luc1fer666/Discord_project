@@ -14,12 +14,12 @@
 		"{bot_nick}.exe has stopped responding. Windows is checking for a solution to the problem..."
 	],
 	"maxplayers": [
-		"Đã có số lượng người chơi tối đa ({m}) tham gia trò chơi. :smiley:",
-		"Không còn chỗ cho bạn chơi đâu. Đã có {m} người chơi ở sảnh rồi. :cry:"
+		"Đã có số lượng người chơi tối đa ({0}) tham gia trò chơi. :smiley:",
+		"Không còn chỗ cho bạn chơi đâu. Đã có {0} người chơi ở sảnh rồi. :cry:"
 	],
 	"minplayers": [
-		"Hãy chờ đợi cho đến khi có ít nhất {m} người chơi. :smiley:",
-		"Không thể bắt đầu trò chơi nếu chỉ có {m} người chơi. :cry:"
+		"Hãy chờ đợi cho đến khi có ít nhất {0} người chơi. :smiley:",
+		"Không thể bắt đầu trò chơi nếu chỉ có {0} người chơi. :cry:"
 	],
 	"notplayingstart": [
 		"Bạn không có đang tham gia nên không thể bắt đầu trò chơi! Gõ `!join` để nhập cuộc. :smiley:"
