@@ -2006,7 +2006,7 @@ async def end_game(reason, winners=None):
         member = client.get_server(WEREWOLF_SERVER).get_member(player)
         if member:
             await client.remove_roles(member, PLAYERS_ROLE)
-        del session[1][player]
+        del session[1][player] #
 
     if faftergame:
         # !faftergame <command> [<parameters>]
