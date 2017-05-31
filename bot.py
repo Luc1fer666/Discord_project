@@ -2358,7 +2358,7 @@ async def player_idle(message):
                 except:
                     pass
                 await check_traitor() #
-				await log(1, "{} ({}) IDLE OUT".format(message.author.display_name, message.author.id))
+                await log(1, "{} ({}) IDLE OUT".format(message.author.display_name, message.author.id))
 
 def is_online(user_id):
     member = client.get_server(WEREWOLF_SERVER).get_member(user_id)
