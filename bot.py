@@ -514,7 +514,7 @@ async def cmd_deop(message, parameters):
                      "only a <gamemode> is given, displays a role guide for <gamemode>. "
                      "Nếu để trống, cho danh sách các vai.```", 'roles')
 async def cmd_role(message, parameters):
-	if parameters == "" and not session[0] or parameters == 'list':
+    if parameters == "" and not session[0] or parameters == 'list':
         await reply(message, "Roles: " + ", ".join(sort_roles(roles)))
         return
     elif parameters == "" and session[0]:
