@@ -2357,7 +2357,7 @@ async def player_idle(message):
                     await client.remove_roles(client.get_server(WEREWOLF_SERVER).get_member(message.author.id), PLAYERS_ROLE)
                 except:
                     pass
-                await check_traitor()
+                await check_traitor() #
 				await log(1, "{} ({}) IDLE OUT".format(message.author.display_name, message.author.id))
 
 def is_online(user_id):
