@@ -1,5 +1,5 @@
 # Discord Werewolf
-Discord Werewolf is a bot that runs the game Werewolf (Mafia) on Discord. It is written in Python using discord.py. You can find me on Discord as belungawhale#4813.
+Discord Werewolf is a bot that runs the game Werewolf (Mafia)
 
 ## Setting the bot up
 Clone this repository and fill in the fields inside config.py. To change some settings, edit settings.py. This bot requires at least Python 3.5 to run.
